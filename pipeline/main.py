@@ -1,8 +1,8 @@
 from bson.codec_options import TypeRegistry, CodecOptions
 
-from datasource import *
-from tasks import *
-from custom_codecs import *
+from pipeline.datasource import *
+from pipeline.tasks import *
+from pipeline.custom_codecs import *
 
 
 def main():

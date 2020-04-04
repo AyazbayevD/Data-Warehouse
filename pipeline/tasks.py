@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datasource import DataSource
+from pipeline.datasource import DataSource
 import pandas as pd
 
 
