@@ -15,6 +15,10 @@ class DataSource(ABC):
         pass
 
     @abstractmethod
+    def pk_handler(self):
+        pass
+
+    @abstractmethod
     def fk_handler(self):
         pass
 
@@ -41,8 +45,8 @@ class PSQLSource(DataSource):
 
     @staticmethod
     def get_table_names(cursor):
-        tables_query = "SELECT table_name, table_schema FROM information_schema.tables " \
-                       "WHERE table_schema not in ('pg_catalog', 'information_schema')"
+        tables_query = "select table_name, table_schema from information_schema.tables " \
+                       "where table_schema not in ('pg_catalog', 'information_schema')"
         cursor.execute(tables_query)
         tables = cursor.fetchall()
         return tables
@@ -55,6 +59,22 @@ class PSQLSource(DataSource):
         except (Exception, psycopg2.Error) as error:
             print('Failed to connect to PostgresSql', error)
             return None
+
+    def pk_handler(self):
+        conn = self.connect()
+        cursor = conn.cursor()
+        tables = PSQLSource.get_table_names(cursor)
+        pk_map = {}
+        for table in tables:
+            table_name = str(table[0])
+            pk_query = "select a.attname, format_type(a.atttypid, a.atttypmod) AS data_type " \
+                       "from   pg_index i " \
+                       "join   pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey)" \
+                       f"where  i.indrelid = '{table_name}'::regclass and i.indisprimary;"
+            cursor.execute(pk_query)
+            pk_map[table_name] = list(cursor.fetchall())
+        cursor.close()
+        return pk_map
 
     def fk_handler(self):
         conn = self.connect()
@@ -74,9 +94,9 @@ class PSQLSource(DataSource):
                        f" where kcu.table_name = '{table_name}' and kcu.table_schema = '{table_schema}' " \
                        "and tco.constraint_type = 'FOREIGN KEY' order by kcu.table_schema, kcu.table_name, kcu.ordinal_position;"
             cursor.execute(fk_query)
-            tuples = cursor.fetchall()
-            for tuple in tuples:
-                fk_map[table_name] = {'fschema': tuple[0], 'ftable': tuple[1], 'fcolumn': tuple[2]}
+            tpls = cursor.fetchall()  # tuples
+            for tpl in tpls:
+                fk_map[table_name] = {'fschema': tpl[0], 'ftable': tpl[1], 'fcolumn': tpl[2]}
         cursor.close()
         return fk_map
 
@@ -123,7 +143,12 @@ class MongoSource(DataSource):
         except Exception as error:
             print('Failed to connect to MongoDb', error)
 
+    def pk_handler(self):
+        # toDo
+        pass
+
     def fk_handler(self):
+        # toDo
         pass
 
     def extract(self):
@@ -168,6 +193,14 @@ class ExcelSource(DataSource):
         all_data = pd.read_excel(self.name)
         return all_data
 
+    def pk_handler(self):
+        # toDo
+        pass
+
+    def fk_handler(self):
+        # toDo
+        pass
+
     def load(self, data: dict):
         # toDo
         pass
@@ -184,6 +217,14 @@ class JSONSource(DataSource):
     def extract(self):
         all_data = pd.read_json(self.name)
         return all_data
+
+    def pk_handler(self):
+        # toDo
+        pass
+
+    def fk_handler(self):
+        # toDo
+        pass
 
     def load(self, data: dict):
         # toDo
