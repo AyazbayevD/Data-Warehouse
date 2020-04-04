@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from DataWarehouse.pipeline.datasource import DataSource
+from datasource import DataSource
 import pandas as pd
 
 

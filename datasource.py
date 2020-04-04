@@ -2,7 +2,7 @@ from abc import *
 import psycopg2
 import pymongo
 import pandas as pd
-import pymongo.errors as mongo_errors
+from pymongo.errors import CollectionInvalid
 
 
 class DataSource(ABC):
@@ -149,7 +149,7 @@ class MongoSource(DataSource):
             # toDo check merely is such a collection exist or not
             try:
                 collection = conn.create_collection(dataset_name, codec_options=self.codec_options, capped=False)
-            except mongo_errors.CollectionInvalid:
+            except CollectionInvalid:
                 collection = conn[dataset_name]
             df = data[dataset_name]
             collection_data = df.T.to_dict().values()
