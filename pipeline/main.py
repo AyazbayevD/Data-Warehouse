@@ -13,7 +13,6 @@ def main():
         port=5432,
         dbname='dvdrental'
     )
-    #postgres.fk_handler()
     decimal_codec = DecimalCodec()
     memoryview_codec = MemoryviewCodec()
     datetime_codec = DatetimeCodec()
@@ -26,7 +25,9 @@ def main():
         codec_options=codec_options
     )
     extraction = Extract(datasources=[postgres])
-    loading = Load(requires={'Extract': extraction}, dwh=mongo)
+    getting_schema = GetSchema(datasources=[postgres])
+    transforming = Transform(requires={'Extract': extraction, 'GetSchema': getting_schema}, dwh=mongo)
+    loading = Load(requires={'Transform': transforming}, dwh=mongo)
     loading.launch()
 
 
