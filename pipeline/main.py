@@ -27,7 +27,7 @@ def main():
     extraction = Extract(datasources=[postgres])
     getting_schema = GetSchema(datasources=[postgres])
     transforming = Transform(requires={'Extract': extraction, 'GetSchema': getting_schema}, dwh=mongo)
-    loading = Load(requires={'Transform': transforming}, dwh=mongo)
+    loading = Load(requires={'Transform': transforming, "GetSchema": getting_schema}, dwh=mongo)
     loading.launch()
 
 

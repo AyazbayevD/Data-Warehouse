@@ -3,6 +3,7 @@ import datetime
 import decimal
 from bson.decimal128 import Decimal128
 from bson.binary import Binary
+import pandas as pd
 
 
 # toDo create another codecs

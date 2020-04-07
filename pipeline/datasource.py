@@ -2,6 +2,8 @@ from abc import *
 import psycopg2
 import pymongo
 import pandas as pd
+import numpy as np
+import os
 from pymongo.errors import CollectionInvalid
 
 
@@ -166,48 +168,54 @@ class MongoSource(DataSource):
             return None
 
     def load(self, data: dict):
-        for data in data.values():
-            if not isinstance(data, pd.DataFrame):
-                raise KeyError
         conn = self.connect()
-        for dataset_name in data.keys():
-            # toDo check merely is such a collection exist or not
-            try:
-                collection = conn.create_collection(dataset_name, codec_options=self.codec_options, capped=False)
-            except CollectionInvalid:
-                collection = conn[dataset_name]
-            df = data[dataset_name]
-            collection_data = df.T.to_dict().values()
-            collection.insert_many(collection_data)
+        for source_name in data.keys():
+            source_data = data[source_name]
+            for dataset_name in source_data.keys():
+                df = source_data[dataset_name]
+                if type(df) != pd.DataFrame:
+                    raise ValueError
+                try:
+                    collection = conn.create_collection(dataset_name, codec_options=self.codec_options, capped=False)
+                except CollectionInvalid:
+                    collection = conn[dataset_name]
+                collection_data = df.T.to_dict().values()
+                for row in collection_data:
+                    try:
+                        collection.insert_one(row)
+                    except Exception:
+                        # toDo
+                        pass
 
     def drop_data(self):
-        conn = self.connect()
-        conn.drop_database(self.name)
+        client = pymongo.MongoClient(host=self.host, port=self.port)
+        client.drop_database(self.name)
 
 
 class ExcelSource(DataSource):
     def __init__(self, filename):
         super(ExcelSource, self).__init__(filename)
 
+    def connect(self):
+        file = open(f'{self.name}', 'r+')
+        return file
+
     def extract(self):
         all_data = pd.read_excel(self.name)
         return all_data
 
     def pk_handler(self):
-        # toDo
-        pass
+        return {}
 
     def fk_handler(self):
-        # toDo
-        pass
+        return {}
 
     def load(self, data: dict):
         # toDo
         pass
 
     def drop_data(self):
-        # toDo
-        pass
+        os.remove(self.name)
 
 
 class JSONSource(DataSource):
@@ -219,13 +227,14 @@ class JSONSource(DataSource):
         return all_data
 
     def pk_handler(self):
-        # toDo
-        pass
+        return {}
 
     def fk_handler(self):
-        # toDo
-        pass
+        return {}
 
     def load(self, data: dict):
         # toDo
         pass
+
+    def drop_data(self):
+        os.remove(self.name)
