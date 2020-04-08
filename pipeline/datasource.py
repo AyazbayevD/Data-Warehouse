@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import os
 from pymongo.errors import CollectionInvalid
+import xlrd
 
 
 class DataSource(ABC):
@@ -176,16 +177,13 @@ class MongoSource(DataSource):
                 if type(df) != pd.DataFrame:
                     raise ValueError
                 try:
-                    collection = conn.create_collection(dataset_name, codec_options=self.codec_options, capped=False)
+                    collection = conn.create_collection(dataset_name, codec_options=self.codec_options,
+                                                        capped=False)
                 except CollectionInvalid:
                     collection = conn[dataset_name]
                 collection_data = df.T.to_dict().values()
                 for row in collection_data:
-                    try:
-                        collection.insert_one(row)
-                    except Exception:
-                        # toDo
-                        pass
+                    collection.insert_one(row)
 
     def drop_data(self):
         client = pymongo.MongoClient(host=self.host, port=self.port)
@@ -197,11 +195,14 @@ class ExcelSource(DataSource):
         super(ExcelSource, self).__init__(filename)
 
     def connect(self):
-        file = open(f'{self.name}', 'r+')
-        return file
+        return
 
     def extract(self):
-        all_data = pd.read_excel(self.name)
+        all_data = {}
+        xls = xlrd.open_workbook(self.name, on_demand=True)
+        sheet_names = xls.sheet_names()
+        for sheet_name in sheet_names:
+            all_data[sheet_name] = pd.read_excel(self.name, sheet_name=sheet_name)
         return all_data
 
     def pk_handler(self):

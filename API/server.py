@@ -1,8 +1,10 @@
 import os
 
 from flask import Flask, request, abort, jsonify, send_from_directory
+from flask_cors import CORS, cross_origin
 
 api = Flask(__name__)
+CORS(api, resources={r'/*': {'origins': '*'}})
 UPLOAD_DIRECTORY = "/home/iskander/PycharmProjects/Data-Warehouse/temp_files"
 
 
@@ -27,10 +29,11 @@ def post_file(filename):
     return "", 201
 
 
-@api.route('/')
+@api.route('/', methods=['POST'])
 def hello():
     print('Hello')
+    return 200
 
 
 if __name__ == "__main__":
-    api.run(debug=True, port=2036)
+    api.run(debug=True, host='0.0.0.0', port=8081)

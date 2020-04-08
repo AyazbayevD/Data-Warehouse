@@ -85,8 +85,7 @@ class Transform(Task):
                 if type(df) != pd.DataFrame:
                     raise ValueError
                 df.dropna(how='all')
-                df.replace(pd.NaT, np.NaN)
-                df.fillna(value='Not specified')
+                df.fillna(value='Not specified', inplace=True)
                 self._output[source_name][dataset_name] = df
 
 
