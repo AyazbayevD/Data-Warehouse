@@ -1,11 +1,23 @@
 from bson.codec_options import TypeRegistry, CodecOptions
 
-from pipeline.datasource import *
-from pipeline.tasks import *
-from pipeline.custom_codecs import *
+from pipeline.custom_codecs.datetime import DatetimeCodec
+from pipeline.custom_codecs.memoryView import MemoryviewCodec
+from pipeline.datasources.csvSource import CSVSource
+from pipeline.datasources.mongoSource import MongoSource
+from pipeline.datasources.postgresSql import PSQLSource
+from pipeline.parsers.tableLayout import TableLayoutParser
+from pipeline.custom_codecs.decimal import *
+from pipeline.tasks.extract import Extract
+from pipeline.tasks.getSchema import GetSchema
+from pipeline.tasks.load import Load
+from pipeline.tasks.transform import Transform
 
 
 def main():
+    tl_parser = TableLayoutParser('https://pcms.university.innopolis.ru/results/innopolis/2018-2019/final/')
+    tl_parser.parse()
+    csv = CSVSource(
+        'temp_files/Финальный_этап_Олимпиады_Университета_Иннополис_Innopolis_Open_Final_Round_2018_2019.csv')
     postgres = PSQLSource(
         user='postgres',
         password='',
@@ -24,11 +36,10 @@ def main():
         dbname='dvdrental',
         codec_options=codec_options
     )
-    extraction = Extract(datasources=[postgres])
-    getting_schema = GetSchema(datasources=[postgres])
-    transforming = Transform(requires={'Extract': extraction, 'GetSchema': getting_schema}, dwh=mongo)
-    loading = Load(requires={'Transform': transforming, "GetSchema": getting_schema}, dwh=mongo)
-    clock = 0
+    extraction = Extract(datasources=[csv])
+    getting_schema = GetSchema(datasources=[csv])
+    transforming = Transform(requires={'Extract': extraction, 'GetSchema': getting_schema})
+    loading = Load(requires={'Transform': transforming}, dwh=mongo)
     loading.launch()
 
 
