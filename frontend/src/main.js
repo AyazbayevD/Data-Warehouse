@@ -1,5 +1,7 @@
 import Vue from 'vue'
-import App from './App.vue'
+import Upload from './Upload.vue'
+import Home from './Home.vue'
+import router from './router'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 window.axios = require('axios');
 
@@ -13,5 +15,6 @@ Vue.use(IconsPlugin)
 
 new Vue({
   el: '#app',
-  render: h => h(App)
+  router,
+  render: h => h(Home)
 })
