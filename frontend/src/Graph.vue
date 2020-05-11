@@ -24,38 +24,38 @@
           D3Network
         },
 
-      computed: {
-          options(){
-            return{
-              nodeSize: this.nodeSize,
-              nodeLabels: true,
-              force: 1500
+        computed: {
+            options(){
+              return{
+                nodeSize: this.nodeSize,
+                nodeLabels: true,
+                force: 1500
+              }
+            },
+
+        },
+
+        created() {
+          let nodes = [];
+          fetch('src/1.json').then(function (resp) {
+            return resp.json();
+          }).then(function (data) {
+            let cus_id = data.customer_id;
+            let names = data.first_name;
+            let surnames = data.last_name;
+            for(let i = 0; i < 60; i++){
+              nodes.push({id: cus_id[i], name: names[i] + " " + surnames[i]});
             }
-          },
+          });
 
-      },
+          this.nodes = nodes;
+        },
 
-      created() {
-        let nodes = [];
-        fetch('src/1.json').then(function (resp) {
-          return resp.json();
-        }).then(function (data) {
-          let cus_id = data.customer_id;
-          let names = data.first_name;
-          let surnames = data.last_name;
-          for(let i = 0; i < 60; i++){
-            nodes.push({id: cus_id[i], name: names[i] + " " + surnames[i]});
+        methods: {
+          goToPerson(event, node){
+            this.$router.push({name: 'Person', params: {name: node.name, id: node.id}});
           }
-        });
-
-        this.nodes = nodes;
-      },
-
-      methods: {
-        goToPerson(event, node){
-          this.$router.push({name: 'Person', params: {name: node.name, id: node.id}});
         }
-      }
 
     }
 </script>

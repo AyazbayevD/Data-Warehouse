@@ -9,23 +9,22 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
 
-            <li class="nav-item">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <li @click="goToPath('uploadFiles')" class="nav-item">
+              <a class="nav-link" href="#">Загрузить файл<span class="sr-only">(current)</span></a>
             </li>
 
-            <li @click="goToPath('uploadFiles')" class="nav-item">
-              <a class="nav-link" href="#">Upload files<span class="sr-only">(current)</span></a>
+
+            <li @click="goToPath('Table')">
+              <a class="nav-link" href="#">Таблица</a>
             </li>
 
             <li @click="goToPath('Graph')" class="nav-item">
-              <a class="nav-link" href="#">Graph</a>
+              <a class="nav-link" href="#">Граф</a>
             </li>
-
           </ul>
 
           <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Выйти</button>
           </form>
 
         </div>

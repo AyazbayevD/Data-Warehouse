@@ -3,6 +3,8 @@ import Upload from './Upload.vue'
 import Home from './Home.vue'
 import router from './router'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 window.axios = require('axios');
 
 import 'bootstrap/dist/css/bootstrap.css'
