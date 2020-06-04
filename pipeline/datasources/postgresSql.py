@@ -5,12 +5,9 @@ from pipeline.datasources.dataSource import DataSource
 
 
 class PSQLSource(DataSource):
-    def __init__(self, user: str, password: str, dbname: str, host: str, port: int):
-        self.user = user
-        self.password = password
-        self.host = host
-        self.port = port
-        super(PSQLSource, self).__init__(dbname)
+    def __init__(self, name: str, conn):
+        self.conn = conn
+        super(PSQLSource, self).__init__(name)
 
     @staticmethod
     def get_table_names(cursor):
@@ -20,17 +17,8 @@ class PSQLSource(DataSource):
         tables = cursor.fetchall()
         return tables
 
-    def connect(self):
-        try:
-            pgconn = psycopg2.connect(user=self.user, password=self.password, host=self.host, port=self.port,
-                                      database=self.name)
-            return pgconn
-        except (Exception, psycopg2.Error) as error:
-            print('Failed to connect to PostgresSql', error)
-            return None
-
     def pk_handler(self):
-        conn = self.connect()
+        conn = self.conn
         cursor = conn.cursor()
         tables = PSQLSource.get_table_names(cursor)
         pk_map = {}
@@ -46,7 +34,7 @@ class PSQLSource(DataSource):
         return pk_map
 
     def fk_handler(self):
-        conn = self.connect()
+        conn = self.conn
         cursor = conn.cursor()
         tables = PSQLSource.get_table_names(cursor)
         fk_map = {}
@@ -72,7 +60,7 @@ class PSQLSource(DataSource):
 
     def extract(self):
         try:
-            conn = self.connect()
+            conn = self.conn
             cursor = conn.cursor()
             tables = self.get_table_names(cursor)
             all_data = dict()
@@ -88,11 +76,3 @@ class PSQLSource(DataSource):
         except (Exception, psycopg2.Error) as error:
             print('Failed to extract data from psql database', error)
             return None
-
-    def load(self, data: dict, schema: dict):
-        # toDo
-        pass
-
-    def drop_data(self):
-        # toDO
-        pass

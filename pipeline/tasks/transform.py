@@ -4,13 +4,12 @@ from pipeline.tasks.task import Task
 
 
 class Transform(Task):
-    # toDo deduplicating
     def __init__(self, requires: dict):
         required_task_names = ['Extract', 'GetSchema']
         if len(requires) != len(required_task_names):
             raise AttributeError
         for task_name in required_task_names:
-            if task_name not in requires or str(type(requires[task_name])) != f"<class 'pipeline.tasks.{task_name}'>":
+            if task_name not in requires:
                 raise AttributeError
         super(Transform, self).__init__(requires)
 

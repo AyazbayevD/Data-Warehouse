@@ -12,6 +12,8 @@ class TableLayoutParser(HtmlParser):
         res = ''
         last_word = ''
         for c in string:
+            if c == '.':
+                c = '0'
             if c.isalpha() or c.isdigit():
                 last_word += c
             elif len(last_word):
@@ -47,6 +49,21 @@ class TableLayoutParser(HtmlParser):
                 dataset = dict(zip(columns, row_data))
                 datasets.append(dataset)
             df = pd.DataFrame(datasets)
+            df.drop(df.index[174], inplace=True)
+            n, m = df.shape
+            first_names = []
+            last_names = []
+            for i in range(n):
+                full_name = df['Участник'][i]
+                words = full_name.split(' ')
+                last_name = words[len(words) - 1]
+                first_name = ' '
+                for i in range(len(words) - 1):
+                    first_name += words[i]
+                first_names.append(first_name)
+                last_names.append(last_name)
+            df['Фамилия'] = last_names
+            df['Имя'] = first_names
             df.to_csv(f'temp_files/{table_name}.csv')
         except Exception:
             raise ParseError("incorrect layout")
